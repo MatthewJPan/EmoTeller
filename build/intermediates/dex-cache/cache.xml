@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/exploded-aar/com.microsoft.projectoxford/face/1.0.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="b9885b9cbfc39129a13674d39d0cae321fc0dc97">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.microsoft.projectoxford-face-1.0.0_f720b356a7d8c7dc35206700d8f1d5f97878162d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-21.0.3_e2493a76c5db00c85422b927024315e9561ca8d8/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/jars/libs/internal_impl-21.0.3.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-21.0.3_b8d53a5786f542777acc74a07907ca9450442129/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-21.0.3_f11df2dbe9d067aacf2b5458723041695ac94e8e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-21.0.3_45a86cd5568f49ca0d4e13458a57b104d66523c6/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.5/686c608d1805b6d4d425ec4459e88164ffc85870/gson-2.5.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="686c608d1805b6d4d425ec4459e88164ffc85870">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/gson-2.5_4fd52e4cc48ee6ef519a101ad04c446e592bd264/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/exploded-aar/com.microsoft.projectoxford/emotion/1.0.355/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="e14806eb68bf5098f8a6b6f09e414143b7532280">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.microsoft.projectoxford-emotion-1.0.355_c0a526efa9acfbd27392d21a8ea5d959860741f5/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="5f8fdc131cdb3d5e947a80227833e6be3eaab476">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_cad634a6541c3b733516ce85d256f869b3aa0717/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="5650a03008c753b010865a304ed0a24e3ba02cf3">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_bfa2a1cf465c0d0220a82ced75d742fa7be476de/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Applications/Android Studio.app/Contents/gradle/m2repository/commons-io/commons-io/2.4/commons-io-2.4.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="21.1.2"
+        sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
+        <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/commons-io-2.4_db9d9c7f5dc9abc44c05f9a56b43532b2a4af315/classes.dex" />
+    </item>
+
+</items>
