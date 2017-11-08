@@ -4,7 +4,7 @@
     <!-- Emotion subscription key -->
     <!-- Please refer to https://www.projectoxford.ai/ to get your subscription key -->
     <!-- If you have one subscription key, you can add it here to use the service -->
-    <string name="subscription_key">330e7cf2f5264dad98c3597c7c9e47b6</string>
+    <string name="subscription_key">5db84af5d40f4fd5918abc2ee6065e87</string>
 
     <!-- Face subscription key -->
     <!-- Please refer to http://oxford-portal.azurewebsites.net/doc/general/subscription-key-mgmt to get your subscription key -->

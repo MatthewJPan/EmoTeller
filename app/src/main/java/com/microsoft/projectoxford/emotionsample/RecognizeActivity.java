@@ -300,7 +300,7 @@ public class RecognizeActivity extends ActionBarActivity {
                 mEditText.append("\n\nRecognizing emotions with existing face rectangles from Face API...\n");
             }
             if (e != null) {
-                mEditText.setText("Error: " + e.getMessage());
+               // mEditText.setText("Error: " + e.getMessage());
                 this.e = null;
             } else {
                 if (result.size() == 0) {
