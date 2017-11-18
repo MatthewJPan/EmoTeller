@@ -38,16 +38,7 @@
                 android:background="#E0E0E0" />
 
         </LinearLayout>
-        <FrameLayout
-            android:id="@+id/camera_preview"
-            android:layout_width="fill_parent"
-            android:layout_height="78dp" />
-        <Button
-            android:id="@+id/button_capture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Capture" />
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"

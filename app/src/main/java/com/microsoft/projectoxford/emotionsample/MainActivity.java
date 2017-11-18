@@ -33,15 +33,21 @@
 package com.microsoft.projectoxford.emotionsample;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -51,9 +57,11 @@ import android.view.View;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -79,16 +87,28 @@ import com.microsoft.projectoxford.emotion.EmotionServiceRestClient;
 import com.microsoft.projectoxford.emotion.contract.FaceRectangle;
 import com.microsoft.projectoxford.emotion.contract.RecognizeResult;
 import com.microsoft.projectoxford.emotion.rest.EmotionServiceException;
+import com.microsoft.projectoxford.emotionsample.helper.ImageHelper;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
+
+import android.content.SharedPreferences;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     private Camera mCamera;
     private CameraPreview mCameraPreview;
-    Bitmap mBitmap;
+    Bitmap mBitmap, bitmap1;
     private EmotionServiceClient client;
     private EditText mEditText;
+    final Context context = this;
+    ByteArrayOutputStream binaryOutStream;
+    ByteArrayInputStream binaryInStream;
+    private File dir_image2, dir_image;
+    private FileOutputStream fos;
+    private FileInputStream fis;
+    ImageView cameraView;
+    Uri uriTarget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,35 +127,59 @@ public class MainActivity extends Activity {
         mCameraPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
+        //mCamera.startPreview();
+        cameraView = (ImageView) findViewById(R.id.imageView2);
 
         Button captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+//                doRecognize();
                 Timer timer = new Timer();
-                timer.schedule(new TimerTask()
-                {
+                timer.schedule(new TimerTask() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
+                        //mCamera.startPreview();
+                        doRecognize();
 //                        mCamera.startPreview();
 //                        mCamera.takePicture(null, null, mPicture);
-                        new AsyncTask<Void, Void, Void>() {
-                            @Override
-                            protected void onPreExecute() {
-                                mCamera.startPreview();
-                                mCamera.takePicture(null, null, mPicture);
-                            }
-                            @Override
-                            protected Void doInBackground( Void... voids ) {
-                                doRecognize();
-                                return null;
-                            }
-                            @Override
-                            protected void onPostExecute(Void aVoid) {
-
-                            }
-                        }.execute();
+//                        new AsyncTask<Void, Void, Void>() {
+//                            @Override
+//                            protected void onPreExecute() {
+////                                mCamera.startPreview();
+////                                mCamera.takePicture(null, null, mPicture);
+//                            }
+//                            @Override
+//                            protected Void doInBackground( Void... voids ) {
+//
+////                                mCamera.takePicture(null, null, mPicture);
+//                                return null;
+//                            }
+//                            @Override
+//                            protected void onPostExecute(Void aVoid) {
+////                                mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
+////                                        uriTarget, getContentResolver());
+////                                if (mBitmap != null) {
+////                                    // Show the image on screen.
+//////                                    ImageView imageView = (ImageView) findViewById(R.id.selectedImage);
+//////                                    imageView.setImageBitmap(mBitmap);
+////
+////                                    // Add detection log.
+//////                                    Toast.makeText(MainActivity.this,
+//////                                            "Image: " + uriTarget + " resized to ", Toast.LENGTH_LONG).show();
+////
+////                                    Log.d("RecognizeActivity", "Image: " + uriTarget + " resized to " + mBitmap.getWidth()
+////                                            + "x" + mBitmap.getHeight());
+////
+////                                    doRecognize();
+////                                }
+////                                else{
+////                                    mEditText.setText("Error: no bitmap" );
+////                                }
+//
+//                            }
+//                        }.execute();
                     }
                 }, 0, 2000);
             }
@@ -175,28 +219,81 @@ public class MainActivity extends Activity {
     PictureCallback mPicture = new PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            File pictureFile = getOutputMediaFile();
-            mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            if (pictureFile == null) {
-                return;
+//
+////            dir_image2 = new  File(Environment.getExternalStorageDirectory()+
+////                    File.separator+"My Custom Folder");
+////            dir_image2.mkdirs();
+////            File tmpFile = new File(dir_image2,"TempImage.jpg");
+//            File pictureFile = getOutputMediaFile();
+////            BitmapFactory.Options options = new BitmapFactory.Options();
+////            options.inJustDecodeBounds = false;
+//            mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+//
+//            if (pictureFile == null) {
+//                return;
+//            }
+//            try {
+//                FileOutputStream fos = new FileOutputStream(pictureFile);
+//                fos.write(data);
+//                fos.close();
+//                //mBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+//                //mBitmap.recycle();
+//
+////                bmp1 = decodeFile(tmpFile);
+////                bmp=Bitmap.createScaledBitmap(bmp1,CamView.getWidth(), CamView.getHeight(),true);
+//                mCamera.startPreview();
+//
+//            } catch (FileNotFoundException e) {
+//
+//            } catch (IOException e) {
+//            }
+            mCamera.startPreview();
+            uriTarget = getContentResolver().insert//(Media.EXTERNAL_CONTENT_URI, image);
+                    (MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
 
-            }
+            OutputStream imageFileOS;
             try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                //fos.close();
-                //FileOutputStream out = new FileOutputStream(pictureFile);
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-                mBitmap.recycle();
-                mCamera.startPreview();
+                imageFileOS = getContentResolver().openOutputStream(uriTarget);
+                imageFileOS.write(data);
+                imageFileOS.flush();
+                imageFileOS.close();
 
+                Toast.makeText(MainActivity.this,
+                        "Image saved: " + uriTarget.toString(), Toast.LENGTH_LONG).show();
             } catch (FileNotFoundException e) {
-
+                e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
             }
+            mEditText.append(uriTarget.toString());
+            mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
+                    uriTarget, getContentResolver());
+//            mBitmap=RotateBitmap(mBitmap,90);
+            if (mBitmap != null) {
+                // Show the image on screen.
+//                                    ImageView imageView = (ImageView) findViewById(R.id.selectedImage);
+//                                    imageView.setImageBitmap(mBitmap);
+
+                // Add detection log.
+//                                    Toast.makeText(MainActivity.this,
+//                                            "Image: " + uriTarget + " resized to ", Toast.LENGTH_LONG).show();
+
+                Log.d("RecognizeActivity", "Image: " + uriTarget + " resized to " + mBitmap.getWidth()
+                        + "x" + mBitmap.getHeight());
+                cameraView.setImageBitmap(mBitmap);
+                doRecognize();
+            } else {
+                mEditText.setText("Error: no bitmap");
+            }
+            //mCamera.startPreview();
+            //mCamera.startPreview();
+
+            //mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            //iv_image.setImageBitmap(mBitmap);
         }
 
     };
+
 
     private static File getOutputMediaFile() {
         File mediaStorageDir = new File(
@@ -247,19 +344,20 @@ public class MainActivity extends Activity {
         try {
             new MainActivity.doRequest(false).execute();
         } catch (Exception e) {
-            mEditText.append("Error encountered. Exception is: " + e.toString());
+//            mEditText.append("Error encountered. Exception is: " + e.toString());
+            Log.e("error", e.toString());
         }
 
         String faceSubscriptionKey = getString(R.string.faceSubscription_key);
         if (faceSubscriptionKey.equalsIgnoreCase("Please_add_the_face_subscription_key_here")) {
             mEditText.append("\n\nThere is no face subscription key in res/values/strings.xml. Skip the sample for detecting emotions using face rectangles\n");
         } else {
-            // Do emotion detection using face rectangles provided by Face API.
-            try {
-                new MainActivity.doRequest(true).execute();
-            } catch (Exception e) {
-                mEditText.append("Error encountered. Exception is: " + e.toString());
-            }
+//            // Do emotion detection using face rectangles provided by Face API.
+//            try {
+//                new MainActivity.doRequest(true).execute();
+//            } catch (Exception e) {
+//                mEditText.append("Error encountered. Exception is: " + e.toString());
+//            }
         }
     }
 
@@ -307,7 +405,7 @@ public class MainActivity extends Activity {
         Log.d("emotion", "Start face detection using Face API");
         FaceRectangle[] faceRectangles = null;
         String faceSubscriptionKey = getString(R.string.faceSubscription_key);
-        FaceServiceRestClient faceClient = new FaceServiceRestClient(faceSubscriptionKey);
+        FaceServiceRestClient faceClient = new FaceServiceRestClient(faceSubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
         Face faces[] = faceClient.detect(inputStream, false, false, null);
         Log.d("emotion", String.format("Face detection is done. Elapsed time: %d ms", (System.currentTimeMillis() - timeMark)));
 
@@ -351,6 +449,20 @@ public class MainActivity extends Activity {
             this.useFaceRectangles = useFaceRectangles;
         }
 
+        protected void onPreExecute() {
+            // mCamera.stopPreview();
+//            try
+//            {
+//                Thread.sleep(20);
+//            }
+//            catch (Exception e)
+//            {
+//                e.printStackTrace();
+//            }
+//            mCamera.startPreview();
+            mCamera.takePicture(null, null, mPicture);
+        }
+
         @Override
         protected List<RecognizeResult> doInBackground(String... args) {
             if (this.useFaceRectangles == false) {
@@ -380,7 +492,7 @@ public class MainActivity extends Activity {
                 mEditText.append("\n\nRecognizing emotions with existing face rectangles from Face API...\n");
             }
             if (e != null) {
-                // mEditText.setText("Error: " + e.getMessage());
+                //mEditText.setText("Error: " + e.getMessage());
                 this.e = null;
             } else {
                 if (result.size() == 0) {
@@ -414,13 +526,139 @@ public class MainActivity extends Activity {
                                 paint);
                         count++;
                     }
-                    ImageView imageView = (ImageView) findViewById(R.id.selectedImage);
-                    imageView.setImageDrawable(new BitmapDrawable(getResources(), mBitmap));
+//                    ImageView imageView = (ImageView) findViewById(R.id.selectedImage);
+//                    imageView.setImageDrawable(new BitmapDrawable(getResources(), mBitmap));
                 }
                 mEditText.setSelection(0);
+                // mCamera.stopPreview();
             }
 
             //mButtonSelectImage.setEnabled(true);
         }
     }
+
+    public static Bitmap RotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+//    public void TakeScreenshot(){
+//
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+//        int nu = preferences.getInt("image_num",0);
+//        nu++;
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putInt("image_num",nu);
+//        editor.commit();
+//        mCameraPreview.setDrawingCacheEnabled(true);
+//        mCameraPreview.buildDrawingCache(true);
+//        mBitmap = Bitmap.createBitmap(mCameraPreview.getDrawingCache());
+//        mCameraPreview.setDrawingCacheEnabled(false);
+//        binaryOutStream = new ByteArrayOutputStream();
+//        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, binaryOutStream);
+//        byte[] bitmapdata = binaryOutStream.toByteArray();
+//        binaryInStream = new ByteArrayInputStream(bitmapdata);
+//
+//        String picId=String.valueOf(nu);
+//        String myfile="MyImage"+picId+".jpeg";
+//
+//        dir_image = new  File(Environment.getExternalStorageDirectory()+
+//                File.separator+"My Custom Folder");
+//        dir_image.mkdirs();
+//
+//        try {
+//            File tmpFile = new File(dir_image,myfile);
+//            fos = new FileOutputStream(tmpFile);
+//
+//            byte[] buf = new byte[1024];
+//            int len;
+//            while ((len = binaryInStream.read(buf)) > 0) {
+//                fos.write(buf, 0, len);
+//            }
+//            binaryInStream.close();
+//            fos.close();
+//
+//            Toast.makeText(getApplicationContext(),
+//                    "The file is saved at :/My Custom Folder/"+"MyImage"+picId+".jpeg",Toast.LENGTH_LONG).show();
+//
+//            bitmap1 = null;
+//            cameraView.setImageBitmap(bitmap1);
+//            mCamera.startPreview();
+////            button1.setClickable(true);
+////            button1.setVisibility(View.VISIBLE);//<----UNHIDE HER
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
+//
+//    private PictureCallback mPicture = new PictureCallback() {
+//
+//        @Override
+//        public void onPictureTaken(byte[] data, Camera camera) {
+//            dir_image2 = new  File(Environment.getExternalStorageDirectory()+
+//                    File.separator+"My Custom Folder");
+//            dir_image2.mkdirs();
+//
+//
+//            File tmpFile = new File(dir_image2,"TempImage.jpg");
+//            try {
+//                fos = new FileOutputStream(tmpFile);
+//                fos.write(data);
+//                fos.close();
+//            } catch (FileNotFoundException e) {
+//                Toast.makeText(getApplicationContext(),"Error",Toast.LENGTH_LONG).show();
+//            } catch (IOException e) {
+//                Toast.makeText(getApplicationContext(),"Error",Toast.LENGTH_LONG).show();
+//            }
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+//            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+//
+//            bitmap1 = decodeFile(tmpFile);
+//            mBitmap=Bitmap.createScaledBitmap(bitmap1,mCameraPreview.getWidth(),mCameraPreview.getHeight(),true);
+//            cameraView.setImageBitmap(mBitmap);
+//            tmpFile.delete();
+//            TakeScreenshot();
+//
+//        }
+//    };
+//
+//
+//    public Bitmap decodeFile(File f) {
+//        Bitmap b = null;
+//        try {
+//            // Decode image size
+//            BitmapFactory.Options option = new BitmapFactory.Options();
+//            option.inJustDecodeBounds = true;
+//
+//            fis = new FileInputStream(f);
+//            BitmapFactory.decodeStream(fis, null, option);
+//            fis.close();
+//            int IMAGE_MAX_SIZE = 1000;
+//            int scale = 1;
+//            if (option.outHeight > IMAGE_MAX_SIZE || option.outWidth > IMAGE_MAX_SIZE) {
+//                scale = (int) Math.pow(
+//                        2,
+//                        (int) Math.round(Math.log(IMAGE_MAX_SIZE
+//                                / (double) Math.max(option.outHeight, option.outWidth))
+//                                / Math.log(0.5)));
+//            }
+//
+//            // Decode with inSampleSize
+//            BitmapFactory.Options o2 = new BitmapFactory.Options();
+//            o2.inSampleSize = scale;
+//            fis = new FileInputStream(f);
+//            b = BitmapFactory.decodeStream(fis, null, o2);
+//            fis.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return b;
+//    }
 }

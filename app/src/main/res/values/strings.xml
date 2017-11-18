@@ -4,13 +4,13 @@
     <!-- Emotion subscription key -->
     <!-- Please refer to https://www.projectoxford.ai/ to get your subscription key -->
     <!-- If you have one subscription key, you can add it here to use the service -->
-    <string name="subscription_key">5db84af5d40f4fd5918abc2ee6065e87</string>
+    <string name="subscription_key">28f5fd91b2864b94b0eb13dc9eb52f7a</string>
 
     <!-- Face subscription key -->
     <!-- Please refer to http://oxford-portal.azurewebsites.net/doc/general/subscription-key-mgmt to get your subscription key -->
     <!-- Please note that the Emotion API and Face API have different subscription keys -->
     <!-- You will need Face subscription key, besides the Emotion subscription keys, for the second part of the sample to work -->
-    <string name="faceSubscription_key">ebc4e433100a4c06a4d8389d76b20d91</string>
+    <string name="faceSubscription_key">ff94316ecea24a0898cfda742e5414c1</string>
 
     <!-- Display strings -->
     <string name="add_subscription_key_tip_title">Subscription Key is Needed</string>
