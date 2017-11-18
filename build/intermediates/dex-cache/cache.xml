@@ -70,7 +70,7 @@
         jumboMode="true"
         optimize="true"
         revision="21.1.2"
-        sha1="1509fe9dc2892375ddcb1763ab882bca51018614">
+        sha1="77278713f86e81550989a1fecbc6b522cef23f7b">
         <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_cad634a6541c3b733516ce85d256f869b3aa0717/classes.dex" />
     </item>
     <item
@@ -79,7 +79,7 @@
         jumboMode="true"
         optimize="true"
         revision="21.1.2"
-        sha1="05ea1299ae3194723793b1ac701a6d531264ba3c">
+        sha1="46711e8fb0e911e0485e5dae66bd5705839c958f">
         <dex dex="/Users/mac/Desktop/UT/Cognitive-Emotion-Android-master/Sample/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_bfa2a1cf465c0d0220a82ced75d742fa7be476de/classes.dex" />
     </item>
     <item
