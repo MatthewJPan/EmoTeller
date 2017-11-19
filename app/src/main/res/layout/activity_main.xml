@@ -13,30 +13,21 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recognize Image"
-            android:id="@+id/button_recognize"
-            android:layout_gravity="center_horizontal"
-            android:onClick="activityRecognize" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="27dp"
             android:layout_marginTop="20dp"
-            android:text="Microsoft will receive the images you upload and may use them to improve Emotion API and related services. By submitting an image, you confirm that you have consent from everyone in it."/>
+            android:text="Microsoft will receive the images you upload and may use them to improve Emotion API and related services. By submitting an image, you confirm that you have consent from everyone in it." />
+
         <FrameLayout
             android:id="@+id/camera_preview"
             android:layout_width="match_parent"
-            android:layout_height="205dp">
-
-        </FrameLayout>
+            android:layout_height="205dp" />
 
         <ImageView
             android:layout_width="103dp"
             android:layout_height="119dp"
-            android:id="@+id/imageView2" />
+            android:id="@+id/imageView" />
 
         <Button
             android:id="@+id/button_capture"
@@ -44,12 +35,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Capture" />
-        <EditText
+
+        <Button
+            android:id="@+id/button_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Stop" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="textMultiLine"
             android:ems="10"
-            android:id="@+id/editTextResult" />
+            android:id="@+id/textResult" />
     </LinearLayout>
 
 </RelativeLayout>
