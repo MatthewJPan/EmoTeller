@@ -50,6 +50,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,6 +116,7 @@ public class MainActivity extends Activity {
 
     Bitmap mBitmap;
     private Uri uriTarget;
+    Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +129,7 @@ public class MainActivity extends Activity {
 
         //mButtonSelectImage = (Button) findViewById(R.id.buttonSelectImage);
         mTextView = (TextView) findViewById(R.id.textResult);
-//        mEditText.setText("");
+        mTextView.setMovementMethod(new ScrollingMovementMethod());
 
         mCamera = getCameraInstance();
         mCameraPreview = new CameraPreview(this, mCamera);
@@ -141,8 +143,7 @@ public class MainActivity extends Activity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Timer timer = new Timer();
+                timer = new Timer();
                 // takes a photo every 2 second
                 timer.schedule(new TimerTask() {
                     @Override
@@ -154,6 +155,15 @@ public class MainActivity extends Activity {
         });
 
         stopButton = (Button) findViewById(R.id.button_stop);
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (timer != null) {
+                    timer.cancel();
+                }
+            }
+
+        });
 
         if (getString(R.string.subscription_key).startsWith("Please")) {
             new AlertDialog.Builder(this)
@@ -319,7 +329,7 @@ public class MainActivity extends Activity {
 
                 if (result.size() == 0) {
 
-                    mTextView.append("No emotion detected :(");
+                    mTextView.append("No emotion detected :(\n");
 
                     // haptic & audio output
 
@@ -470,7 +480,7 @@ public class MainActivity extends Activity {
             }
 
             mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(uriTarget, getContentResolver());
-            mBitmap=RotateBitmap(mBitmap,90);
+//            mBitmap=RotateBitmap(mBitmap,90);
 
             if (mBitmap != null) {
                 // Show the image on screen.
