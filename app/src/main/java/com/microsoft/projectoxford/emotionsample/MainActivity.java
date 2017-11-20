@@ -122,6 +122,10 @@ public class MainActivity extends Activity {
     private Uri uriTarget;
     private Timer timer;
 
+    public final double FACE_SIZE_THRESHOLD = 0.0;
+    public final double SIZE_DIFFERENCE_THRESHOLD = 1000.0;
+    public final double CENTER_LEFT_VALUE = 330;
+
     private String hapticEmotion;
     private String previousEmotion;
 
@@ -366,7 +370,8 @@ public class MainActivity extends Activity {
                 if (!mute) {
                     if (result.size() == 0) {
                         // visual output
-                        mTextView.append("No emotion detected :(\n");
+//                        mTextView.append("No emotion detected :(\n");
+                        displayEmotion(null, null);
 
                         // haptic & audio output
                         outputHapticFeedback(null);
@@ -413,6 +418,7 @@ public class MainActivity extends Activity {
 
         String json = gson.toJson(result);
         Log.d("result", json);
+        Log.d("result size", Integer.toString(result.size()));
 
         Log.d("emotion", String.format("Detection done. Elapsed time: %d ms", (System.currentTimeMillis() - startTime)));
         // -----------------------------------------------------------------------
@@ -559,10 +565,10 @@ public class MainActivity extends Activity {
      * @param faces the list of recognized faces
      * @return the main face
      */
-    private RecognizeResult getFace(List<RecognizeResult> faces) {
-        float[] faceSizes = new float[faces.size()];
+    private RecognizeResult getFaceOriginal(List<RecognizeResult> faces) {
+        double[] faceSizes = new double[faces.size()];
         RecognizeResult face;
-        float largest = 0;
+        double largest = 0.0;
         int faceNumber = 0;
 
         for (int i = 0; i < faces.size(); i++) {
@@ -577,31 +583,105 @@ public class MainActivity extends Activity {
     }
 
     /**
+     * Get the main face in the recognized face list
+     * @param faces the list of recognized faces
+     * @return the main face
+     */
+    private RecognizeResult getFace(List<RecognizeResult> faces) {
+        double faceSize;
+        List<RecognizeResult> selectedFaces = new ArrayList<RecognizeResult>();
+        RecognizeResult face;
+
+        // select faces with size no less than the threshold
+        for (int i = 0; i < faces.size(); i++) {
+            face = faces.get(i);
+            faceSize = getFaceSize(face);
+            if (faceSize >= FACE_SIZE_THRESHOLD) {
+                selectedFaces.add(face);
+            }
+        }
+
+        int selected = selectedFaces.size();
+        if (selected == 0) {
+            return null;
+        } else if (selected == 1) {
+            return selectedFaces.get(0);
+        } else {
+            // remove faces with large size differences
+            List<RecognizeResult> facesToRmv = new ArrayList<RecognizeResult>();
+            for (int i = 0; i < selected; i++) {
+                for (int j = 1; j < selected; j++) {
+                    double size_i = getFaceSize(selectedFaces.get(i));
+                    double size_j = getFaceSize(selectedFaces.get(j));
+                    double sizeDif = Math.abs(size_i - size_j);
+                    if (sizeDif > SIZE_DIFFERENCE_THRESHOLD) {
+                        // remove smaller face if difference is greater than threshold
+                        if (size_i > size_j) {
+                            facesToRmv.add(selectedFaces.get(j));
+                        } else {
+                            facesToRmv.add(selectedFaces.get(i));
+                        }
+                    }
+                }
+            }
+            selectedFaces.removeAll(facesToRmv);
+
+            selected = selectedFaces.size();
+            if (selected == 0) {
+                Log.d("error", "no face selected");
+                return null;
+            } else if (selected == 1) {
+                return selectedFaces.get(0);
+            } else {
+                // select the centered face
+                double disToCenter;
+                double smallestDis = Math.abs(CENTER_LEFT_VALUE - selectedFaces.get(0).faceRectangle.left);
+                int faceNumber = 0;
+                for (int i = 0; i < selected; i++) {
+                    disToCenter = Math.abs(CENTER_LEFT_VALUE - selectedFaces.get(i).faceRectangle.left);
+                    if (disToCenter < smallestDis) {
+                        smallestDis = disToCenter;
+                        faceNumber = i;
+                    }
+                }
+                return selectedFaces.get(faceNumber);
+            }
+        }
+    }
+
+    private double getFaceSize(RecognizeResult face) {
+        return face.faceRectangle.height * face.faceRectangle.width;
+    }
+
+    /**
      * Get the main emotion on the face
      * @param face
      * @return the emotion and the score
      */
     private Emotion getEmotion(RecognizeResult face) {
-        double[] emotionScores = new double[NUMBER_OF_EMOTIONS];
-        String[] emotions = new String[] {"anger", "contempt", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"};
-        emotionScores[0] = face.scores.anger;
-        emotionScores[1] = face.scores.contempt;
-        emotionScores[2] = face.scores.disgust;
-        emotionScores[3] = face.scores.fear;
-        emotionScores[4] = face.scores.happiness;
-        emotionScores[5] = face.scores.neutral;
-        emotionScores[6] = face.scores.sadness;
-        emotionScores[7] = face.scores.surprise;
+        if (face != null) {
+            double[] emotionScores = new double[NUMBER_OF_EMOTIONS];
+            String[] emotions = new String[] {"anger", "contempt", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"};
+            emotionScores[0] = face.scores.anger;
+            emotionScores[1] = face.scores.contempt;
+            emotionScores[2] = face.scores.disgust;
+            emotionScores[3] = face.scores.fear;
+            emotionScores[4] = face.scores.happiness;
+            emotionScores[5] = face.scores.neutral;
+            emotionScores[6] = face.scores.sadness;
+            emotionScores[7] = face.scores.surprise;
 
-        double largest = 0.0;
-        String emotion = "anger";
-        for (int i = 0; i < emotionScores.length; i++) {
-            if (largest < emotionScores[i]) {
-                largest = emotionScores[i];
-                emotion = emotions[i];
+            double largest = 0.0;
+            String emotion = "anger";
+            for (int i = 0; i < emotionScores.length; i++) {
+                if (largest < emotionScores[i]) {
+                    largest = emotionScores[i];
+                    emotion = emotions[i];
+                }
             }
+            return new Emotion(emotion, largest);
         }
-        return new Emotion(emotion, largest);
+        return null;
     }
 
     public class Emotion {
@@ -629,18 +709,19 @@ public class MainActivity extends Activity {
      * @param mainEmotion
      */
     private void displayEmotion(RecognizeResult mainFace, Emotion mainEmotion) {
-        // Covert bitmap to a mutable bitmap by copying it
-        Bitmap bitmapCopy = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas faceCanvas = new Canvas(bitmapCopy);
-        faceCanvas.drawBitmap(mBitmap, 0, 0, null);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5);
-        paint.setColor(Color.RED);
+        if (mainFace != null) {
+            // Covert bitmap to a mutable bitmap by copying it
+            Bitmap bitmapCopy = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            Canvas faceCanvas = new Canvas(bitmapCopy);
+            faceCanvas.drawBitmap(mBitmap, 0, 0, null);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(5);
+            paint.setColor(Color.RED);
 
-        mTextView.append(mainEmotion.getEmotion());
-        mTextView.append(String.format("\t %1$.5f\n", mainEmotion.getScore()));
-        Log.d("========", mainEmotion.getEmotion());
+            mTextView.append(mainEmotion.getEmotion());
+            mTextView.append(String.format("\t %1$.5f\n", mainEmotion.getScore()));
+            Log.d("========", mainEmotion.getEmotion());
 //        mEditText.append(String.format("\t contempt: %1$.5f\n", mainFace.scores.contempt));
 //        mEditText.append(String.format("\t disgust: %1$.5f\n", mainFace.scores.disgust));
 //        mEditText.append(String.format("\t fear: %1$.5f\n", mainFace.scores.fear));
@@ -650,11 +731,15 @@ public class MainActivity extends Activity {
 //        mEditText.append(String.format("\t surprise: %1$.5f\n", mainFace.scores.surprise));
 //        mEditText.append(String.format("\t face rectangle: %d, %d, %d, %d", mainFace.faceRectangle.left, mainFace.faceRectangle.top, mainFace.faceRectangle.width, mainFace.faceRectangle.height));
 
-        faceCanvas.drawRect(mainFace.faceRectangle.left,
-                mainFace.faceRectangle.top,
-                mainFace.faceRectangle.left + mainFace.faceRectangle.width,
-                mainFace.faceRectangle.top + mainFace.faceRectangle.height,
-                paint);
+            faceCanvas.drawRect(mainFace.faceRectangle.left,
+                    mainFace.faceRectangle.top,
+                    mainFace.faceRectangle.left + mainFace.faceRectangle.width,
+                    mainFace.faceRectangle.top + mainFace.faceRectangle.height,
+                    paint);
+        } else {
+            mTextView.append("No emotion detected :(\n");
+        }
+
     }
 
     /**
