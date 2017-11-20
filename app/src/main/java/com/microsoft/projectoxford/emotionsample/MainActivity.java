@@ -46,6 +46,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
@@ -64,6 +65,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -114,9 +116,12 @@ public class MainActivity extends Activity {
     private Button captureButton;
     private Button stopButton;
 
-    Bitmap mBitmap;
+    private Bitmap mBitmap;
     private Uri uriTarget;
-    Timer timer;
+    private Timer timer;
+
+    private String hapticEmotion;
+    private String previousEmotion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +132,9 @@ public class MainActivity extends Activity {
             client = new EmotionServiceRestClient(getString(R.string.subscription_key));
         }
 
-        //mButtonSelectImage = (Button) findViewById(R.id.buttonSelectImage);
+        hapticEmotion = "happiness";
+        previousEmotion = "some emotion to avoid conflict with null";
+
         mTextView = (TextView) findViewById(R.id.textResult);
         mTextView.setMovementMethod(new ScrollingMovementMethod());
 
@@ -135,7 +142,6 @@ public class MainActivity extends Activity {
         mCameraPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
-        //mCamera.startPreview();
 
         cameraView = (ImageView) findViewById(R.id.imageView);
 
@@ -328,17 +334,25 @@ public class MainActivity extends Activity {
             } else {
 
                 if (result.size() == 0) {
-
+                    // visual output
                     mTextView.append("No emotion detected :(\n");
 
                     // haptic & audio output
+                    outputHapticFeedback(null);
+
+                    previousEmotion = null;
 
                 } else {
                     RecognizeResult mainFace = getFace(result);
                     Emotion mainEmotion = getEmotion(mainFace);
+
+                    // visual output
                     displayEmotion(mainFace, mainEmotion);
 
                     // haptic & audio output
+                    outputHapticFeedback(mainEmotion);
+
+                    previousEmotion = mainEmotion.getEmotion();
                 }
                 // mCamera.stopPreview();
             }
@@ -585,8 +599,7 @@ public class MainActivity extends Activity {
      * @param mainFace
      * @param mainEmotion
      */
-    public void displayEmotion(RecognizeResult mainFace, Emotion mainEmotion) {
-
+    private void displayEmotion(RecognizeResult mainFace, Emotion mainEmotion) {
         // Covert bitmap to a mutable bitmap by copying it
         Bitmap bitmapCopy = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
         Canvas faceCanvas = new Canvas(bitmapCopy);
@@ -615,7 +628,31 @@ public class MainActivity extends Activity {
                 paint);
     }
 
-    public static Bitmap RotateBitmap(Bitmap source, float angle) {
+    /**
+     * Vibrate when the user-specified emotion is detected
+     * @param emotion the emotion detected
+     */
+    private void outputHapticFeedback(Emotion emotion) {
+        Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        if (emotion == null) {
+            // No face/emotion detected
+            if (previousEmotion != null) {
+                long[] pattern = new long[]{0, 50, 50, 100};
+                vb.vibrate(pattern, -1);
+            }
+
+        } else {
+            String currentEmotion = emotion.getEmotion();
+            if (currentEmotion.equals(hapticEmotion)) {
+                if (!currentEmotion.equals(previousEmotion)) {
+                    vb.vibrate(200);
+                }
+            }
+        }
+    }
+
+    private static Bitmap RotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
