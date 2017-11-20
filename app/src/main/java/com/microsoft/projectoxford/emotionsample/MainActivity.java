@@ -52,8 +52,10 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
 import android.view.View;
 
 import java.io.ByteArrayInputStream;
@@ -123,8 +125,14 @@ public class MainActivity extends Activity {
     private String hapticEmotion;
     private String previousEmotion;
 
+    // if the stop button is clicked
+    private boolean mute;
+    // if the start button is clicked
+    private boolean clicked;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("!!!", "activity created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -134,6 +142,9 @@ public class MainActivity extends Activity {
 
         hapticEmotion = "happiness";
         previousEmotion = "some emotion to avoid conflict with null";
+
+        mute = false;
+        clicked = false;
 
         mTextView = (TextView) findViewById(R.id.textResult);
         mTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -149,14 +160,20 @@ public class MainActivity extends Activity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                timer = new Timer();
-                // takes a photo every 2 second
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        mCamera.takePicture(null, null, mPicture);
-                    }
-                }, 0, 2000);
+                if (!clicked) {
+                    // disable the button once it's clicked
+                    clicked = true;
+                    mute = false;
+                    timer = new Timer();
+                    // takes a photo every 2 second
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            mCamera.takePicture(null, null, mPicture);
+                        }
+                    }, 0, 2000);
+                }
+
             }
         });
 
@@ -165,6 +182,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (timer != null) {
+                    clicked = false;
+                    mute = true;
                     timer.cancel();
                 }
             }
@@ -180,7 +199,6 @@ public class MainActivity extends Activity {
         }
 
     }
-
 
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
@@ -226,7 +244,7 @@ public class MainActivity extends Activity {
             camera = Camera.open();
         } catch (Exception e) {
             // cannot get camera or does not exist
-            Log.e("error", e.toString());
+            Log.e("camera error", e.toString());
         }
         return camera;
     }
@@ -332,32 +350,31 @@ public class MainActivity extends Activity {
                 this.e = null;
 
             } else {
+                // stop output thread when stop is clicked
+                if (!mute) {
+                    if (result.size() == 0) {
+                        // visual output
+                        mTextView.append("No emotion detected :(\n");
 
-                if (result.size() == 0) {
-                    // visual output
-                    mTextView.append("No emotion detected :(\n");
+                        // haptic & audio output
+                        outputHapticFeedback(null);
 
-                    // haptic & audio output
-                    outputHapticFeedback(null);
+                        previousEmotion = null;
 
-                    previousEmotion = null;
+                    } else {
+                        RecognizeResult mainFace = getFace(result);
+                        Emotion mainEmotion = getEmotion(mainFace);
 
-                } else {
-                    RecognizeResult mainFace = getFace(result);
-                    Emotion mainEmotion = getEmotion(mainFace);
+                        // visual output
+                        displayEmotion(mainFace, mainEmotion);
 
-                    // visual output
-                    displayEmotion(mainFace, mainEmotion);
+                        // haptic & audio output
+                        outputHapticFeedback(mainEmotion);
 
-                    // haptic & audio output
-                    outputHapticFeedback(mainEmotion);
-
-                    previousEmotion = mainEmotion.getEmotion();
+                        previousEmotion = mainEmotion.getEmotion();
+                    }
                 }
-                // mCamera.stopPreview();
             }
-
-            //mButtonSelectImage.setEnabled(true);
         }
     }
 
