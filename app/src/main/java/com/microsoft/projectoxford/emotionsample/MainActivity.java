@@ -149,8 +149,9 @@ public class MainActivity extends Activity {
         mTextView = (TextView) findViewById(R.id.textResult);
         mTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        mCamera = getCameraInstance();
-        mCameraPreview = new CameraPreview(this, mCamera);
+//        mCamera = getCameraInstance();
+//        mCameraPreview = new CameraPreview(this, getCameraInstance());
+        mCameraPreview = new CameraPreview(this);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
 
@@ -169,6 +170,7 @@ public class MainActivity extends Activity {
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
+                            mCamera = mCameraPreview.getCamera();
                             mCamera.takePicture(null, null, mPicture);
                         }
                     }, 0, 2000);
@@ -198,6 +200,16 @@ public class MainActivity extends Activity {
                     .show();
         }
 
+    }
+
+    @Override
+    protected void onStop() {
+        if (timer != null) {
+            clicked = false;
+            mute = true;
+            timer.cancel();
+        }
+        super.onStop();
     }
 
 //    @Override

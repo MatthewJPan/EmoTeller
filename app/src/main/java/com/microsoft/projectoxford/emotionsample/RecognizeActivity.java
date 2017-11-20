@@ -49,6 +49,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.microsoft.projectoxford.emotion.EmotionServiceClient;
@@ -81,7 +82,7 @@ public class RecognizeActivity extends ActionBarActivity {
     private Bitmap mBitmap;
 
     // The edit to show status and result.
-    private EditText mEditText;
+    private TextView mEditText;
 
     private EmotionServiceClient client;
 
@@ -95,7 +96,7 @@ public class RecognizeActivity extends ActionBarActivity {
         }
 
         mButtonSelectImage = (Button) findViewById(R.id.buttonSelectImage);
-        mEditText = (EditText) findViewById(R.id.editTextResult);
+        mEditText = (TextView) findViewById(R.id.textResult);
     }
 
     @Override
@@ -337,7 +338,6 @@ public class RecognizeActivity extends ActionBarActivity {
                     ImageView imageView = (ImageView) findViewById(R.id.selectedImage);
                     imageView.setImageDrawable(new BitmapDrawable(getResources(), mBitmap));
                 }
-                mEditText.setSelection(0);
             }
 
             mButtonSelectImage.setEnabled(true);
