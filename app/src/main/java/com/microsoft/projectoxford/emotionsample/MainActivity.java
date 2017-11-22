@@ -166,22 +166,20 @@ public class MainActivity extends Activity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!clicked) {
-                    // disable the button once it's clicked
-                    clicked = true;
-                    mute = false;
-                    timer = new Timer();
-                    // takes a photo every 2 second
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            mCamera = mCameraPreview.getCamera();
-                            mCamera.takePicture(null, null, mPicture);
-                        }
-                    }, 0, 2000);
-                }
-
+                // disable the button once it's clicked
+                captureButton.setEnabled(false);
+                mute = false;
+                timer = new Timer();
+                // takes a photo every 2 second
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        mCamera = mCameraPreview.getCamera();
+                        mCamera.takePicture(null, null, mPicture);
+                    }
+                }, 0, 2000);
             }
+
         });
 
         stopButton = (Button) findViewById(R.id.button_stop);
@@ -189,7 +187,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (timer != null) {
-                    clicked = false;
+                    captureButton.setEnabled(true);
                     mute = true;
                     timer.cancel();
                 }
@@ -531,7 +529,7 @@ public class MainActivity extends Activity {
             }
 
             mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(uriTarget, getContentResolver());
-//            mBitmap=RotateBitmap(mBitmap,90);
+            mBitmap=RotateBitmap(mBitmap,90);
 
             if (mBitmap != null) {
                 // Show the image on screen.
