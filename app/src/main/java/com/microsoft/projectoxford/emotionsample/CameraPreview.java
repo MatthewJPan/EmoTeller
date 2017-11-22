@@ -8,15 +8,15 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class CameraPreview extends SurfaceView implements
-        SurfaceHolder.Callback {
+public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+
     private SurfaceHolder mSurfaceHolder;
     private Camera mCamera;
 
-    // Constructor that obtains context and camera
     @SuppressWarnings("deprecation")
     public CameraPreview(Context context, Camera camera) {
         super(context);
@@ -26,26 +26,35 @@ public class CameraPreview extends SurfaceView implements
         this.mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
+    public CameraPreview(Context context) {
+        super(context);
+        this.mSurfaceHolder = this.getHolder();
+        this.mSurfaceHolder.addCallback(this);
+        this.mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        Log.d("!!!", "surface created");
         try {
+            mCamera = Camera.open();
             mCamera.setPreviewDisplay(surfaceHolder);
             mCamera.setDisplayOrientation(90);
             mCamera.startPreview();
         } catch (IOException e) {
-            // left blank for now
+            Log.e("camera error", e.toString());
         }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        Log.d("!!!", "surface destroyed");
         mCamera.stopPreview();
         mCamera.release();
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int format,
-                               int width, int height) {
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
         // start preview with new settings
         try {
             mCamera.setPreviewDisplay(surfaceHolder);
@@ -53,6 +62,10 @@ public class CameraPreview extends SurfaceView implements
         } catch (Exception e) {
             // intentionally left blank for a test
         }
+    }
+
+    public Camera getCamera() {
+        return mCamera;
     }
 
 }
