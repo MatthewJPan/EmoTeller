@@ -44,6 +44,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Vibrator;
@@ -386,6 +387,7 @@ public class MainActivity extends Activity {
                         displayEmotion(mainFace, mainEmotion);
 
                         // haptic & audio output
+                        outputAudioFeedback(mainEmotion);
                         outputHapticFeedback(mainEmotion);
 
                         previousEmotion = mainEmotion.getEmotion();
@@ -744,7 +746,7 @@ public class MainActivity extends Activity {
 
     /**
      * Vibrate when the user-specified emotion is detected
-     * @param emotion the emotion detected
+     * @param emotion the emotion to output
      */
     private void outputHapticFeedback(Emotion emotion) {
         Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -763,6 +765,50 @@ public class MainActivity extends Activity {
                     vb.vibrate(200);
                 }
             }
+        }
+    }
+
+    /**
+     * Play audio cues based on the output emotion
+     * @param emotion the emotion to output
+     */
+    private void outputAudioFeedback(Emotion emotion) {
+        if (emotion == null) {
+            // No face/emotion detected
+        } else {
+            String currentEmotion = emotion.getEmotion();
+            if (!currentEmotion.equals(previousEmotion)) {
+                MediaPlayer mediaPlayer;
+                switch (emotion.getEmotion()) {
+                    case "anger":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.anger);
+                        mediaPlayer.start();
+                        break;
+                    case "contempt":
+                        break;
+                    case "disgust":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.disgust);
+                        mediaPlayer.start();
+                        break;
+                    case "fear":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+                        mediaPlayer.start();
+                        break;
+                    case "happiness":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.happiness);
+                        mediaPlayer.start();
+                        break;
+                    case "sadness":
+                        break;
+                    case "surprise":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
+                        mediaPlayer.start();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
         }
     }
 
