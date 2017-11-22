@@ -19,6 +19,8 @@
     <string name="title_activity_analyze">AnalyzeActivity</string>
     <string name="title_activity_recognize">RecognizeActivity</string>
     <string name="title_activity_thumbnail">ThumbnailActivity</string>
+    <string name="terms_and_conditions">Microsoft will receive the images you upload and may use them to improve Emotion API and related services. By submitting an image, you confirm that you have consent from everyone in it.</string>
+    <string name="result">   Result   \n</string>
 
     <!-- Select image activity -->
     <string name="select_an_image">Select an Image</string>

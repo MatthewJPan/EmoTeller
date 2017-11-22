@@ -132,8 +132,6 @@ public class MainActivity extends Activity {
 
     // if the stop button is clicked
     private boolean mute;
-    // if the start button is clicked
-    private boolean clicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +147,6 @@ public class MainActivity extends Activity {
         previousEmotion = "some emotion to avoid conflict with null";
 
         mute = false;
-        clicked = false;
 
         mTextView = (TextView) findViewById(R.id.textResult);
         mTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -163,37 +160,37 @@ public class MainActivity extends Activity {
         cameraView = (ImageView) findViewById(R.id.imageView);
 
         captureButton = (Button) findViewById(R.id.button_capture);
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // disable the button once it's clicked
-                captureButton.setEnabled(false);
-                mute = false;
-                timer = new Timer();
-                // takes a photo every 2 second
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        mCamera = mCameraPreview.getCamera();
-                        mCamera.takePicture(null, null, mPicture);
-                    }
-                }, 0, 2000);
-            }
-
-        });
+//        captureButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // disable the button once it's clicked
+//                captureButton.setEnabled(false);
+//                mute = false;
+//                timer = new Timer();
+//                // takes a photo every 2 second
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        mCamera = mCameraPreview.getCamera();
+//                        mCamera.takePicture(null, null, mPicture);
+//                    }
+//                }, 0, 2000);
+//            }
+//
+//        });
 
         stopButton = (Button) findViewById(R.id.button_stop);
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (timer != null) {
-                    captureButton.setEnabled(true);
-                    mute = true;
-                    timer.cancel();
-                }
-            }
-
-        });
+//        stopButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (timer != null) {
+//                    captureButton.setEnabled(true);
+//                    mute = true;
+//                    timer.cancel();
+//                }
+//            }
+//
+//        });
 
         if (getString(R.string.subscription_key).startsWith("Please")) {
             new AlertDialog.Builder(this)
@@ -208,7 +205,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         if (timer != null) {
-            clicked = false;
+            captureButton.setEnabled(true);
             mute = true;
             timer.cancel();
         }
@@ -333,7 +330,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected List<RecognizeResult> doInBackground(String... args) {
-            if (this.useFaceRectangles == false) {
+            if (!this.useFaceRectangles) {
                 try {
                     return processWithAutoFaceDetection();
                 } catch (Exception e) {
@@ -354,7 +351,7 @@ public class MainActivity extends Activity {
             super.onPostExecute(result);
             // Display based on error existence
 
-            if (this.useFaceRectangles == false) {
+            if (!this.useFaceRectangles) {
                 Log.d("detection", "Recognizing emotions with auto-detected face rectangles...");
             } else {
                 Log.d("detection", "Recognizing emotions with existing face rectangles from Face API...");
@@ -410,7 +407,7 @@ public class MainActivity extends Activity {
         // KEY SAMPLE CODE STARTS HERE
         // -----------------------------------------------------------------------
 
-        List<RecognizeResult> result = null;
+        List<RecognizeResult> result;
         //
         // Detect emotion by auto-detecting faces in the image.
         //
@@ -608,7 +605,7 @@ public class MainActivity extends Activity {
             return selectedFaces.get(0);
         } else {
             // remove faces with large size differences
-            List<RecognizeResult> facesToRmv = new ArrayList<RecognizeResult>();
+            List<RecognizeResult> facesToRmv = new ArrayList<>();
             for (int i = 0; i < selected; i++) {
                 for (int j = 1; j < selected; j++) {
                     double size_i = getFaceSize(selectedFaces.get(i));
@@ -655,7 +652,7 @@ public class MainActivity extends Activity {
 
     /**
      * Get the main emotion on the face
-     * @param face
+     * @param face the face to extract emotion from
      * @return the emotion and the score
      */
     private Emotion getEmotion(RecognizeResult face) {
@@ -705,8 +702,8 @@ public class MainActivity extends Activity {
 
     /**
      * Display the main emotion of the main face on the screen
-     * @param mainFace
-     * @param mainEmotion
+     * @param mainFace the main face in the photo
+     * @param mainEmotion the emotion to display
      */
     private void displayEmotion(RecognizeResult mainFace, Emotion mainEmotion) {
         if (mainFace != null) {
@@ -816,6 +813,66 @@ public class MainActivity extends Activity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            Log.d("*****", "onKeyLongPress down");
+            onStopClicked(stopButton);
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            Log.d("*****", "onKeyLongPress up");
+            onStartClicked(captureButton);
+            return true;
+        }
+        return super.onKeyLongPress(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_VOLUME_DOWN){
+            Log.d("*****", "volume down");
+            event.startTracking();
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            Log.d("*****", "volume up");
+            event.startTracking();
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+            if (timer != null) {
+                captureButton.setEnabled(true);
+                mute = true;
+                timer.cancel();
+            }
+        }
+        super.onKeyDown(keyCode, event);
+        return true;
+    }
+
+    public void onStartClicked(View view) {
+        // disable the button once it's clicked
+        captureButton.setEnabled(false);
+        mute = false;
+        timer = new Timer();
+        // takes a photo every 2 second
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mCamera = mCameraPreview.getCamera();
+                mCamera.takePicture(null, null, mPicture);
+            }
+        }, 0, 2000);
+    }
+
+    public void onStopClicked(View view) {
+        if (timer != null) {
+            captureButton.setEnabled(true);
+            mute = true;
+            timer.cancel();
+        }
+    }
 
 //    public Bitmap decodeFile(File f) {
 //        Bitmap b = null;
