@@ -44,12 +44,14 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -133,11 +135,24 @@ public class MainActivity extends Activity {
     // if the stop button is clicked
     private boolean mute;
 
+    private boolean upFlag1;
+    private boolean upFlag2;
+    private boolean downFlag1;
+    private boolean downFlag2;
+    AudioManager audioManager;
+
+    private long upButtonStopTime;
+    private long downButtonStartTime;
+    private long upButtonStartTime;
+    private long downButtonStopTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("!!!", "activity created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
         if (client == null) {
             client = new EmotionServiceRestClient(getString(R.string.subscription_key));
@@ -817,27 +832,46 @@ public class MainActivity extends Activity {
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             Log.d("*****", "onKeyLongPress down");
+
+            downFlag2 = true;
+            downFlag1 = false;
             onStopClicked(stopButton);
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             Log.d("*****", "onKeyLongPress up");
+            upFlag2 = true;
+            upFlag1 = false;
             onStartClicked(captureButton);
             return true;
         }
         return super.onKeyLongPress(keyCode, event);
     }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode==KeyEvent.KEYCODE_VOLUME_DOWN){
             Log.d("*****", "volume down");
             event.startTracking();
+            if (downFlag2 == true) {
+                downFlag1 = false;
+            } else {
+                downFlag1 = true;
+                downFlag2 = false;
+            }
+
             return true;
+            //return super.onKeyDown(keyCode, event);
         }
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             Log.d("*****", "volume up");
             event.startTracking();
+            if (upFlag2 == true) {
+                upFlag1 = false;
+            } else {
+                upFlag1 = true;
+                upFlag2 = false;
+            }
+
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_HOME) {
@@ -850,6 +884,103 @@ public class MainActivity extends Activity {
         super.onKeyDown(keyCode, event);
         return true;
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+
+            event.startTracking();
+            if (downFlag1) {
+                audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
+                Log.i("volume-----", "volume down");
+            }
+            downFlag1 = true;
+            downFlag2 = false;
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+
+            event.startTracking();
+            if (upFlag1) {
+                audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+                Log.i("volume+++++", "volume up");
+            }
+            upFlag1 = true;
+            upFlag2 = false;
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if(keyCode==KeyEvent.KEYCODE_VOLUME_DOWN){
+//            Log.d("*****", "volume down");
+//            event.startTracking();
+//            downButtonStartTime=System.currentTimeMillis();
+//
+//            return true;
+//            //return super.onKeyDown(keyCode, event);
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+//            Log.d("*****", "volume up");
+//            event.startTracking();
+//            upButtonStartTime= System.currentTimeMillis();
+//            return true;
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_HOME) {
+//            if (timer != null) {
+//                captureButton.setEnabled(true);
+//                mute = true;
+//                timer.cancel();
+//            }
+//        }
+//        super.onKeyDown(keyCode, event);
+//        return true;
+//    }
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+//            downButtonStopTime=System.currentTimeMillis();
+//            event.startTracking();
+//            if (downButtonStartTime-downButtonStopTime<300) {
+//                audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
+//                Log.i("volume-----","volume down");
+//            }
+//            else{
+//                onStopClicked(stopButton);
+//            }
+//
+//            return true;
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+//            upButtonStopTime=System.currentTimeMillis();
+//            event.startTracking();
+//            if (upButtonStartTime-upButtonStopTime<300) {
+//                audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+//                Log.i("volume+++++","volume up");
+//            }
+//            else{
+//                onStartClicked(captureButton);
+//            }
+//            return true;
+//        }
+//        return super.onKeyUp(keyCode, event);
+//    }
+
+
+//    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+//            Log.d("*****", "onKeyLongPress down");
+//            onStopClicked(stopButton);
+//            return true;
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+//            Log.d("*****", "onKeyLongPress up");
+//            onStartClicked(captureButton);
+//            return true;
+//        }
+//        return super.onKeyLongPress(keyCode, event);
+//    }
 
     public void onStartClicked(View view) {
         // disable the button once it's clicked
