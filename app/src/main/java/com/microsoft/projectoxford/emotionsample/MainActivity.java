@@ -141,10 +141,7 @@ public class MainActivity extends Activity {
     private boolean downFlag2;
     AudioManager audioManager;
 
-    private long upButtonStopTime;
-    private long downButtonStartTime;
-    private long upButtonStartTime;
-    private long downButtonStopTime;
+    private boolean wasEmpty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +150,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-
+        wasEmpty = true;
         if (client == null) {
             client = new EmotionServiceRestClient(getString(R.string.subscription_key));
         }
@@ -385,9 +382,11 @@ public class MainActivity extends Activity {
                         displayEmotion(null, null);
 
                         // haptic & audio output
+                        outputAudioFeedback(null);
                         outputHapticFeedback(null);
 
                         previousEmotion = null;
+
 
                     } else {
                         RecognizeResult mainFace = getFace(result);
@@ -783,12 +782,19 @@ public class MainActivity extends Activity {
      * @param emotion the emotion to output
      */
     private void outputAudioFeedback(Emotion emotion) {
+        MediaPlayer mediaPlayer;
         if (emotion == null) {
             // No face/emotion detected
+            if (previousEmotion != null && previousEmotion != "some emotion to avoid conflict with null") {
+                mediaPlayer = MediaPlayer.create(this, R.raw.gone);
+                mediaPlayer.start();
+                Log.i("!!!!!!", "gone is played");
+            }
+            //wasEmpty=true;
         } else {
             String currentEmotion = emotion.getEmotion();
             if (!currentEmotion.equals(previousEmotion)) {
-                MediaPlayer mediaPlayer;
+
                 switch (emotion.getEmotion()) {
                     case "anger":
                         mediaPlayer = MediaPlayer.create(this, R.raw.anger);
@@ -814,11 +820,17 @@ public class MainActivity extends Activity {
                         mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
                         mediaPlayer.start();
                         break;
+                    case "neutral":
+                        if (previousEmotion == null) {
+                            mediaPlayer = MediaPlayer.create(this, R.raw.alert1);
+                            mediaPlayer.start();
+                        }
+                        break;
                     default:
                         break;
                 }
             }
-
+            //wasEmpty=false;
         }
     }
 
