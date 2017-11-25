@@ -1016,6 +1016,8 @@ public class MainActivity extends Activity {
 //    }
 
     public void onStartClicked(View view) {
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.start);
+        mediaPlayer.start();
         // disable the button once it's clicked
         captureButton.setEnabled(false);
         mute = false;
@@ -1032,6 +1034,8 @@ public class MainActivity extends Activity {
 
     public void onStopClicked(View view) {
         if (timer != null) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.stop);
+            mediaPlayer.start();
             captureButton.setEnabled(true);
             mute = true;
             timer.cancel();
