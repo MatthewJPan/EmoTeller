@@ -48,6 +48,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -84,6 +85,7 @@ import android.hardware.Camera.PictureCallback;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -106,6 +108,8 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static android.R.attr.content;
 
 public class MainActivity extends Activity {
 
@@ -141,16 +145,24 @@ public class MainActivity extends Activity {
     private boolean downFlag2;
     AudioManager audioManager;
 
-    private boolean wasEmpty;
+    //    private boolean wasEmpty;
+    PowerManager.WakeLock wakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("!!!", "activity created");
         super.onCreate(savedInstanceState);
+        // Keep screen on when the app is running
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        wasEmpty = true;
+//        wasEmpty = true;
+
+//        PowerManager powerManager = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
+//        wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Lock");
+//        wakeLock.acquire();
+
         if (client == null) {
             client = new EmotionServiceRestClient(getString(R.string.subscription_key));
         }
@@ -607,6 +619,7 @@ public class MainActivity extends Activity {
         for (int i = 0; i < faces.size(); i++) {
             face = faces.get(i);
             faceSize = getFaceSize(face);
+            Log.d("*face size*", Double.toString(faceSize));
             if (faceSize >= FACE_SIZE_THRESHOLD) {
                 selectedFaces.add(face);
             }
@@ -625,6 +638,8 @@ public class MainActivity extends Activity {
                     double size_i = getFaceSize(selectedFaces.get(i));
                     double size_j = getFaceSize(selectedFaces.get(j));
                     double sizeDif = Math.abs(size_i - size_j);
+                    Log.d("*face size Dif*", Double.toString(sizeDif));
+
                     if (sizeDif > SIZE_DIFFERENCE_THRESHOLD) {
                         // remove smaller face if difference is greater than threshold
                         if (size_i > size_j) {
@@ -895,6 +910,12 @@ public class MainActivity extends Activity {
         }
         super.onKeyDown(keyCode, event);
         return true;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+//        wakeLock.release();
     }
 
     @Override
