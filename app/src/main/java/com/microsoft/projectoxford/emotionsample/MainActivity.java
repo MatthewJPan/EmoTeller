@@ -111,7 +111,7 @@ import org.json.JSONObject;
 
 import static android.R.attr.content;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements NetBroadcastReceiver.netEventHandler {
 
     public final int NUMBER_OF_EMOTIONS = 8;
 
@@ -129,8 +129,8 @@ public class MainActivity extends Activity {
     private Uri uriTarget;
     private Timer timer;
 
-    public final double FACE_SIZE_THRESHOLD = 0.0;
-    public final double SIZE_DIFFERENCE_THRESHOLD = 1000.0;
+    public final double FACE_SIZE_THRESHOLD = 10000.0;
+    public final double SIZE_DIFFERENCE_THRESHOLD = 14000.0;
     public final double CENTER_LEFT_VALUE = 330;
 
     private String hapticEmotion;
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 //        PowerManager powerManager = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
 //        wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Lock");
 //        wakeLock.acquire();
-
+        NetBroadcastReceiver.mListeners.add(this);
         if (client == null) {
             client = new EmotionServiceRestClient(getString(R.string.subscription_key));
         }
@@ -224,8 +224,26 @@ public class MainActivity extends Activity {
                     .show();
         }
 
+
     }
 
+//    public boolean isConnected() throws InterruptedException, IOException
+//    {
+//        String command = "ping -c 1 google.com";
+//        return (Runtime.getRuntime().exec (command).waitFor() == 0);
+//    }
+
+    public void onNetChange() {
+        if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE) {
+            //Toast.makeText(this,"there is problem in Internect connection, please check the settings", Toast.LENGTH_SHORT);
+            Log.e("net error", "******error******");
+            //TODO: add "internet down" audio
+
+        } else {
+            //Toast.makeText(this,"the Internet connection is resumed", Toast.LENGTH_SHORT);
+            //TODO: add "internet resumed" audio
+        }
+    }
     @Override
     protected void onStop() {
         if (timer != null) {
@@ -816,6 +834,8 @@ public class MainActivity extends Activity {
                         mediaPlayer.start();
                         break;
                     case "contempt":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.contempt);
+                        mediaPlayer.start();
                         break;
                     case "disgust":
                         mediaPlayer = MediaPlayer.create(this, R.raw.disgust);
@@ -830,6 +850,8 @@ public class MainActivity extends Activity {
                         mediaPlayer.start();
                         break;
                     case "sadness":
+                        mediaPlayer = MediaPlayer.create(this, R.raw.sad);
+                        mediaPlayer.start();
                         break;
                     case "surprise":
                         mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
@@ -1026,6 +1048,9 @@ public class MainActivity extends Activity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
+//                if (isConnected()){
+//
+//                }
                 mCamera = mCameraPreview.getCamera();
                 mCamera.takePicture(null, null, mPicture);
             }
