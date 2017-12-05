@@ -54,7 +54,7 @@
                 android:text="   Result   \n"
                 android:background="#ffffff"
                 android:ems="10"
-                android:maxLines="20"
+                android:maxLines="200"
                 android:scrollbars="vertical"
                 android:id="@+id/textResult" />
 

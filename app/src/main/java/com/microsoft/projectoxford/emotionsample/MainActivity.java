@@ -145,6 +145,7 @@ public class MainActivity extends Activity implements NetBroadcastReceiver.netEv
     private boolean downFlag2;
     AudioManager audioManager;
 
+    MediaPlayer mediaPlayer;
     //    private boolean wasEmpty;
     PowerManager.WakeLock wakeLock;
 
@@ -815,7 +816,7 @@ public class MainActivity extends Activity implements NetBroadcastReceiver.netEv
      * @param emotion the emotion to output
      */
     private void outputAudioFeedback(Emotion emotion) {
-        MediaPlayer mediaPlayer;
+//        MediaPlayer mediaPlayer;
         if (emotion == null) {
             // No face/emotion detected
             if (previousEmotion != null && previousEmotion != "some emotion to avoid conflict with null") {
@@ -830,11 +831,11 @@ public class MainActivity extends Activity implements NetBroadcastReceiver.netEv
 
                 switch (emotion.getEmotion()) {
                     case "anger":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.anger);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.angry);
                         mediaPlayer.start();
                         break;
                     case "contempt":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.contempt);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.anger);
                         mediaPlayer.start();
                         break;
                     case "disgust":
@@ -842,19 +843,19 @@ public class MainActivity extends Activity implements NetBroadcastReceiver.netEv
                         mediaPlayer.start();
                         break;
                     case "fear":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.fear_short);
                         mediaPlayer.start();
                         break;
                     case "happiness":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.happiness);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.happiness_short);
                         mediaPlayer.start();
                         break;
                     case "sadness":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.sad);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.sadness);
                         mediaPlayer.start();
                         break;
                     case "surprise":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.surprise_short);
                         mediaPlayer.start();
                         break;
                     case "neutral":
@@ -1054,7 +1055,7 @@ public class MainActivity extends Activity implements NetBroadcastReceiver.netEv
                 mCamera = mCameraPreview.getCamera();
                 mCamera.takePicture(null, null, mPicture);
             }
-        }, 0, 2000);
+        }, 0, 1600);
     }
 
     public void onStopClicked(View view) {
