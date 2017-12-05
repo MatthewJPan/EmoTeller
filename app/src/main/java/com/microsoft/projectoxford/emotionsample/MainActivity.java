@@ -812,7 +812,7 @@ public class MainActivity extends Activity {
 
                 switch (emotion.getEmotion()) {
                     case "anger":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.anger);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.anger_short);
                         mediaPlayer.start();
                         break;
                     case "contempt":
@@ -822,17 +822,17 @@ public class MainActivity extends Activity {
                         mediaPlayer.start();
                         break;
                     case "fear":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.fear_short);
                         mediaPlayer.start();
                         break;
                     case "happiness":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.happiness);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.happiness_short);
                         mediaPlayer.start();
                         break;
                     case "sadness":
                         break;
                     case "surprise":
-                        mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.surprise_short);
                         mediaPlayer.start();
                         break;
                     case "neutral":
